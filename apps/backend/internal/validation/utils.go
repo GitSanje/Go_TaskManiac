@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-
 	"github.com/gitSanje/go-taskManiac/internal/errs"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"

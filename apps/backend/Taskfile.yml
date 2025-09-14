@@ -1,55 +1,55 @@
 version: '3'
-dotenv: ['.env']
 
 vars:
-  TASK_DB_DSN: postgresql://admin:root@localhost:5432/taskmaniac?sslmode=disable
+  TASKER_DB_DSN: postgresql://postgres:postgres@localhost:5432/task?sslmode=disable
 
 tasks:
   help:
     desc: print this help message
     cmds:
-      - task --list-all
+    - task --list-all
     silent: true
 
   confirm:
-    desc: confirmation prompt (Windows PowerShell)
+    desc: confirmation prompt
     cmds:
-      - powershell -Command "if ((Read-Host 'Are you sure? [y/N]') -ne 'y') { exit 1 }"
+    - |
+      echo -n 'Are you sure? [y/N] ' && read ans && [ ${ans:-N} = y ]
     silent: true
     internal: true
 
   run:
-    desc: run the cmd/taskManiac application
+    desc: run the cmd/tasker application
     cmds:
-      - go run ./cmd/taskManiac
+    - go run ./cmd/taskManiac
 
   migrations:new:
     desc: create a new database migration
     vars:
       NAME: '{{.name | default ""}}'
     cmds:
-      - |
-        if [ -z "{{.NAME}}" ]; then
-          echo "Error: name parameter is required"
-          echo "Usage: task migrations:new name=migration_name"
-          exit 1
-        fi
-      - echo 'Creating migration file for {{.NAME}}...'
-      - tern new -m ./internal/database/migrations {{.NAME}}
+    - |
+      if [ -z "{{.NAME}}" ]; then
+        echo "Error: name parameter is required"
+        echo "Usage: task migrations:new name=migration_name"
+        exit 1
+      fi
+    - echo 'Creating migration file for {{.NAME}}...'
+    - tern new -m ./internal/database/migrations {{.NAME}}
 
   migrations:up:
     desc: apply all up database migrations
     deps: [ confirm ]
     cmds:
-      - echo 'Running up migrations...'
-      - tern migrate -m ./internal/database/migrations --conn-string "{{.TASK_DB_DSN}}"
+    - echo 'Running up migrations...'
+    - tern migrate -m ./internal/database/migrations --conn-string {{.TASKER_DB_DSN}}
 
   tidy:
     desc: format all .go files, and tidy and vendor module dependencies
     cmds:
-      - echo 'Formatting .go files...'
-      - go fmt ./...
-      - echo 'Tidying module dependencies...'
-      - go mod tidy
-      - echo 'Verifying dependencies...'
-      - go mod verify
+    - echo 'Formatting .go files...'
+    - go fmt ./...
+    - echo 'Tidying module dependencies...'
+    - go mod tidy
+    - echo 'Verifying dependencies...'
+    - go mod verify
