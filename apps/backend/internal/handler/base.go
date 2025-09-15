@@ -214,9 +214,13 @@ func Handle[Req validation.Validatable, Res any](
 	req Req,
 ) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return handleRequest(c, req, func(c echo.Context, req Req) (interface{}, error) {
+		return handleRequest(
+			c, 
+			req, 
+		func(c echo.Context, req Req) (interface{}, error) {
 			return handler(c, req)
-		}, JSONResponseHandler{status: status})
+		}, 
+		JSONResponseHandler{status: status})
 	}
 }
 
