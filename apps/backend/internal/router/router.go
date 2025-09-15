@@ -6,6 +6,7 @@ import (
 	"github.com/gitSanje/go-taskManiac/internal/handler"
 	"github.com/gitSanje/go-taskManiac/internal/middleware"
 	"github.com/gitSanje/go-taskManiac/internal/server"
+	v1 "github.com/gitSanje/go-taskManiac/internal/router/V1"
 	"github.com/gitSanje/go-taskManiac/internal/service"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -52,9 +53,9 @@ func NewRouter(s *server.Server, h *handler.Handlers, services *service.Services
 
 	// register system routes
 	registerSystemRoutes(router, h)
-
-	// register versioned routes
-	router.Group("/api/v1")
+   // register versioned routes
+	v1Router := router.Group("/api/v1")
+	v1.RegisterV1Routes(v1Router, h, middlewares)
 
 	return router
 }
