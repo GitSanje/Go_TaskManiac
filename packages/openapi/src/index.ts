@@ -2,6 +2,7 @@ import { extendZodWithOpenApi } from "@anatine/zod-openapi";
 import { z } from "zod";
 
 extendZodWithOpenApi(z);
+
 import { generateOpenApi } from "@ts-rest/open-api";
 
 import { apiContract } from "./contracts/index.js";
@@ -43,7 +44,7 @@ export const OpenAPI = Object.assign(
       },
       servers: [
         {
-          url: "http://localhost:8080",
+          url: "http://localhost:8080/api",
           description: "Local Server",
         },
       ],
