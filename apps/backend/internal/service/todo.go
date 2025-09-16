@@ -1,12 +1,10 @@
 package service
 
 import (
+	
 	"mime/multipart"
 	"net/http"
 
-	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
-	"github.com/pkg/errors"
 	"github.com/gitSanje/go-taskManiac/internal/errs"
 	"github.com/gitSanje/go-taskManiac/internal/lib/aws"
 	"github.com/gitSanje/go-taskManiac/internal/middleware"
@@ -14,6 +12,9 @@ import (
 	"github.com/gitSanje/go-taskManiac/internal/model/todo"
 	"github.com/gitSanje/go-taskManiac/internal/repository"
 	"github.com/gitSanje/go-taskManiac/internal/server"
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+	"github.com/pkg/errors"
 )
 
 type TodoService struct {
@@ -224,7 +225,10 @@ func (s *TodoService) UploadTodoAttachment(
 		return nil, errs.NewBadRequestError("failed to open uploaded file", false, nil, nil, nil)
 	}
 	defer src.Close()
-
+    
+	logger.Info().
+		Str("bucket_name", s.server.Config.AWS.UploadBucket).
+		Str("f_name", file.Filename)
 	// Upload to S3
 	s3Key, err := s.awsClient.S3.UploadFile(
 		ctx.Request().Context(),
@@ -232,6 +236,7 @@ func (s *TodoService) UploadTodoAttachment(
 		"todos/attachments/"+file.Filename,
 		src,
 	)
+
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to upload file to S3")
 		return nil, errors.Wrap(err, "failed to upload file")

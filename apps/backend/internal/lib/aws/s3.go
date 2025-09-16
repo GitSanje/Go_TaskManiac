@@ -19,11 +19,14 @@ type S3Client struct {
 }
 
 func NewS3Client(server *server.Server, cfg aws.Config) *S3Client {
-	return &S3Client{
-		server: server,
-		client: s3.NewFromConfig(cfg),
-	}
+    return &S3Client{
+        server: server,
+        client: s3.NewFromConfig(cfg, func(o *s3.Options) {
+            o.UsePathStyle = true
+        }),
+    }
 }
+
 
 func (s *S3Client) UploadFile(ctx context.Context, bucket string, fileName string, file io.Reader) (string, error) {
 	fileKey := fmt.Sprintf("%s_%d", fileName, time.Now().Unix())
