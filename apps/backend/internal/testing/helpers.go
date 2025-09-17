@@ -1,5 +1,7 @@
 package testing
 
+//go test -v ./...
+
 import (
 	"encoding/json"
 	"os"
