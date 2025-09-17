@@ -84,6 +84,19 @@ func DefaultCronConfig() *CronConfig {
 	}
 }
 
+// parseMapString parses a string in the format "map[key1:value1 key2:map[nestedKey:nestedValue]]"
+// into a flat map with dot notation for nested keys.
+// For example, given the input:
+//    content = "a:1 b:map[c:3 d:4] e:5"
+//output will be:
+//  {
+//   "a":   "1",
+//   "b.c": "3",
+//   "b.d": "4",
+//   "e":   "5",
+// }
+
+
 func parseMapString(value string) (map[string]string, bool) {
 	if !strings.HasPrefix(value, "map[") || !strings.HasSuffix(value, "]") {
 		return nil, false
@@ -110,6 +123,7 @@ func parseMapString(value string) (map[string]string, bool) {
 
 		key := strings.TrimSpace(content[keyStart:i])
 		i++
+
 
 		valueStart := i
 		if i+4 <= len(content) && content[i:i+4] == "map[" {
@@ -160,11 +174,11 @@ func LoadConfig() (*Config, error) {
 	envVars := make(map[string]string)
 	for _, env := range os.Environ() {
 		parts := strings.SplitN(env, "=", 2)
-		if len(parts) == 2 && strings.HasPrefix(parts[0], "TASKER_") {
+		if len(parts) == 2 && strings.HasPrefix(parts[0], "TASK_") {
 			key := parts[0]
 			value := parts[1]
 
-			configKey := strings.ToLower(strings.TrimPrefix(key, "TASKER_"))
+			configKey := strings.ToLower(strings.TrimPrefix(key, "TASK_"))
 
 			if mapData, isMap := parseMapString(value); isMap {
 				for mapKey, mapValue := range mapData {
@@ -177,8 +191,8 @@ func LoadConfig() (*Config, error) {
 		}
 	}
 
-	err := k.Load(env.ProviderWithValue("TASKER_", ".", func(key, value string) (string, any) {
-		return strings.ToLower(strings.TrimPrefix(key, "TASKER_")), value
+	err := k.Load(env.ProviderWithValue("TASK_", ".", func(key, value string) (string, any) {
+		return strings.ToLower(strings.TrimPrefix(key, "TASK_")), value
 	}), nil)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("could not load initial env variables")
@@ -208,7 +222,7 @@ func LoadConfig() (*Config, error) {
 		mainConfig.Observability = DefaultObservabilityConfig()
 	}
 
-	mainConfig.Observability.ServiceName = "tasker"
+	mainConfig.Observability.ServiceName = "taskManiac"
 	mainConfig.Observability.Environment = mainConfig.Primary.Env
 
 	if err := mainConfig.Observability.Validate(); err != nil {

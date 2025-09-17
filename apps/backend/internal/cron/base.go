@@ -99,40 +99,40 @@ type Job interface {
 }
 
 type JobRunner struct {
-	job Job
-	ctx *JobContext
+	job    Job
+	jobCtx *JobContext
 }
 
 func NewJobRunner(job Job) (*JobRunner, error) {
-	ctx, err := NewJobContext()
+	jobCtx, err := NewJobContext()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create job context: %w", err)
 	}
 
 	return &JobRunner{
-		job: job,
-		ctx: ctx,
+		job:    job,
+		jobCtx: jobCtx,
 	}, nil
 }
 
 func (r *JobRunner) Run() error {
-	defer r.ctx.Close()
+	defer r.jobCtx.Close()
 
-	r.ctx.Server.Logger.Info().
+	r.jobCtx.Server.Logger.Info().
 		Str("job", r.job.Name()).
 		Msg("Starting cron job")
 
 	ctx := context.Background()
-	err := r.job.Run(ctx, r.ctx)
+	err := r.job.Run(ctx, r.jobCtx)
 	if err != nil {
-		r.ctx.Server.Logger.Error().
+		r.jobCtx.Server.Logger.Error().
 			Err(err).
 			Str("job", r.job.Name()).
 			Msg("Failed to run cron job")
 		return err
 	}
 
-	r.ctx.Server.Logger.Info().
+	r.jobCtx.Server.Logger.Info().
 		Str("job", r.job.Name()).
 		Msg("Cron job completed successfully")
 	return nil

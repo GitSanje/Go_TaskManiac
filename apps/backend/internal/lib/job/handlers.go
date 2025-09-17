@@ -152,6 +152,7 @@ func (j *JobService) handleWeeklyReportEmailTask(ctx context.Context, t *asynq.T
 	j.logger.Info().
 		Str("type", "weekly_report").
 		Str("user_id", p.UserID).
+		Str("userEmail", userEmail).
 		Msg("Successfully sent weekly report email")
 	return nil
 }
